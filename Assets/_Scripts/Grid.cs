@@ -103,11 +103,9 @@ public class Grid : MonoBehaviour
 
     private void ScaleGrid()
     {
-        (int effectiveRows, int effectiveColumns) = GetEffectiveGridSize();
-
         // approx actual width and height to scale them to fill the space
-        float width = (effectiveColumns + 1) * 2.35f;
-        float height = (effectiveRows + 1) * 1.9f;
+        float width = (columns + 1) * 2.35f;
+        float height = (rows + 1) * 1.9f;
 
         if (width > height)
             transform.localScale = transform.localScale / width * gridWidth;
@@ -118,27 +116,6 @@ public class Grid : MonoBehaviour
         // scale = localScale
         // max size = the max size the grid can be, i.e. the space the cells should take
         // current size = current size of the grid, i.e. the space the cells are taking
-    }
-
-    private (int effectiveRows, int effectiveCols) GetEffectiveGridSize()
-    {
-        int minRow = rows, maxRow = 0;
-        int minCol = columns, maxCol = 0;
-
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < columns; j++)
-            {
-                if (_grid[i][j].State == CellState.Closed) continue;
-
-                if (i < minRow) minRow = i;
-                if (i > maxRow) maxRow = i;
-                if (j < minCol) minCol = j;
-                if (j > maxCol) maxCol = j;
-            }
-        }
-
-        return (maxRow - minRow + 1, maxCol - minCol + 1);
     }
 
 }
