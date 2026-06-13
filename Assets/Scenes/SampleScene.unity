@@ -203,7 +203,7 @@ Transform:
   m_GameObject: {fileID: 27174685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.859, y: -0.619, z: -0.03}
+  m_LocalPosition: {x: 1.62, y: 0.52, z: -0.03}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -474,17 +474,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a40c94c1421f7e84686728502f01e3e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grid
-  rows: 6
-  columns: 2
+  rows: 4
+  columns: 4
   gridWidth: 5
   gridHeight: 6
   firstColumnRight: 0
   unavailable:
     cells:
-    - row: 0
-      column: 0
-    - row: 0
-      column: 1
+    - row: 1
+      column: 3
+    - row: 3
+      column: 3
   cell: {fileID: 3081744461738203657, guid: 9237264dcdef029428930ec00d861be6, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

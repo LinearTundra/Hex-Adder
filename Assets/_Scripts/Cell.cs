@@ -7,6 +7,8 @@ public class Cell : MonoBehaviour
 
     public int Value { get; private set; }
     public CellState State { get; private set; }
+    public CellCoords Coords { get; private set; }
+    public bool RightOffset { get; private set; }
 
     private SpriteRenderer _sprite;
 
@@ -14,6 +16,7 @@ public class Cell : MonoBehaviour
     private void Awake()
     {
         _sprite = GetComponent<SpriteRenderer>();
+        _sprite.enabled = false;
         _sprite.color = Color.HSVToRGB(0, 0, 70);
     }
 
@@ -23,17 +26,33 @@ public class Cell : MonoBehaviour
         _sprite.color = Color.HSVToRGB(0, 0, 70);
     }
 
-    public void OpenCell()
+    public void Initiate(CellState state, CellCoords coords)
     {
-        State = CellState.Open;
-        _sprite.enabled = true;
-        _sprite.color = Color.HSVToRGB(0, 0, 70);
+        Coords = coords;
+        State = state;
+
+        if (state == CellState.Open)
+        {
+            _sprite.enabled = true;
+            _sprite.color = Color.HSVToRGB(0, 0, 70);
+        }
     }
     
-    public void CloseCell()
+    public void Initiate(CellState state, int row, int column)
     {
-        State = CellState.Closed;
-        _sprite.enabled = false;
+        Coords = new CellCoords(row, column);
+        State = state;
+
+        if (state == CellState.Open)
+        {
+            _sprite.enabled = true;
+            _sprite.color = Color.HSVToRGB(0, 0, 70);
+        }
+    }
+
+    public void SetOffsetDirection(bool rightOffset)
+    {
+        RightOffset = rightOffset;
     }
 
     public void Fill(int Value)
