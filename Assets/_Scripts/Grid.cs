@@ -46,7 +46,7 @@ public class Grid : MonoBehaviour
     {
         foreach (Cell[] row in _grid) 
             for (int i=0; i<columns; i++) 
-                row[i].ResetValue();
+                row[i].ResetCell();
     }
 
     /// <summary>
@@ -145,9 +145,15 @@ public class Grid : MonoBehaviour
         float height = (_effectiveRows + 1) * 1.9f;
 
         if (width > height)
+        {
             transform.localScale = transform.localScale * gridWidth / width;
-        else 
+            GameManager.SetHexScale(gridWidth / width);
+        }
+        else
+        {
             transform.localScale = transform.localScale * gridHeight / height;
+            GameManager.SetHexScale(gridHeight / height);
+        }
         // scale * (max size / current size)
         //
         // scale = localScale

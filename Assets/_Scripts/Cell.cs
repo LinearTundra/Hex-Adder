@@ -1,29 +1,39 @@
+using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
-public class Cell : MonoBehaviour
+public class Cell : Hex
 {
-    // 2.24 x, 1.82 y
-
-    public int Value { get; private set; }
+   
     public CellState State { get; private set; }
     public CellCoords Coords { get; private set; }
     public bool RightOffset { get; private set; }
 
-    private SpriteRenderer _sprite;
-
-
-    private void Awake()
+    private Color _openCellColor = Color.HSVToRGB(0, 0, .7f);
+    private Color _highlightCellColor = Color.HSVToRGB(.6f, .35f, 1);
+    private Color _valueCellColor
     {
-        _sprite = GetComponent<SpriteRenderer>();
-        _sprite.enabled = false;
-        _sprite.color = Color.HSVToRGB(0, 0, 70);
+        get => Color.HSVToRGB((float)Value / 36 % 1, .6f, 1);
     }
 
-    public void ResetValue()
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (State == CellState.Open) SetHexColor(_openCellColor);
+        else SetHexColor(_valueCellColor);
+    }
+
+    public void ResetCell()
     {
         Value = 0;
-        _sprite.color = Color.HSVToRGB(0, 0, 70);
+        State = CellState.Open;
+        SetHexColor(_openCellColor);
+        UpdateTextBoxValue();
+    }
+    
+    public void Initiate(CellState state, int row, int column)
+    {
+        Initiate(state, new CellCoords(row, column));
     }
 
     public void Initiate(CellState state, CellCoords coords)
@@ -33,20 +43,9 @@ public class Cell : MonoBehaviour
 
         if (state == CellState.Open)
         {
+            valueTextBox.enabled = true;
             _sprite.enabled = true;
-            _sprite.color = Color.HSVToRGB(0, 0, 70);
-        }
-    }
-    
-    public void Initiate(CellState state, int row, int column)
-    {
-        Coords = new CellCoords(row, column);
-        State = state;
-
-        if (state == CellState.Open)
-        {
-            _sprite.enabled = true;
-            _sprite.color = Color.HSVToRGB(0, 0, 70);
+            SetHexColor(_openCellColor);
         }
     }
 
@@ -58,8 +57,17 @@ public class Cell : MonoBehaviour
     public void Fill(int Value)
     {
         this.Value += Value;
+        GameManager.UnlockNumber(this.Value);
         State = CellState.Filled;
-        _sprite.color = Color.HSVToRGB(this.Value * 10, 100, 100);
+        SetHexColor(_valueCellColor);
+        UpdateTextBoxValue();
+    }
+
+    public void HighlightCell(bool x)
+    {
+        if (x) SetHexColor(_highlightCellColor);
+        else if (State == CellState.Open) SetHexColor(_openCellColor);
+        else SetHexColor(_valueCellColor);
     }
 
 }
