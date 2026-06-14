@@ -50,16 +50,16 @@ public class Grid : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.OnGameReset -= GameReset;
-        GameManager.OnGameOver -= GameOver;
-        GameManager.OnGameReset += GameReset;
-        GameManager.OnGameOver += GameOver;
+        GameManager.Instance.OnGameReset -= GameReset;
+        GameManager.Instance.OnGameOver -= GameOver;
+        GameManager.Instance.OnGameReset += GameReset;
+        GameManager.Instance.OnGameOver += GameOver;
     }
 
     private void OnDisable()
     {
-        GameManager.OnGameReset -= GameReset;
-        GameManager.OnGameOver -= GameOver;
+        GameManager.Instance.OnGameReset -= GameReset;
+        GameManager.Instance.OnGameOver -= GameOver;
     }
 
     private void OnDrawGizmosSelected()
@@ -229,7 +229,7 @@ public class Grid : MonoBehaviour
                 || (A.State == CellState.Open && B.Value == a)
                 || (A.State == CellState.Open && B.Value == b)
                 || (A.State == CellState.Open && B.State == CellState.Open)
-            ) Debug.Log($"A: {A.ToString()}\nB: {B.ToString()}\na,b: {a},{b}");
+            ) Debug.Log($"A: {A.Coords.ToString()}\nB: {B.Coords.ToString()}\na,b: {a},{b}");
             return (A.Value == a && B.Value == b)
                 || (A.Value == b && B.Value == a)
                 || (A.Value == a && B.State == CellState.Open)

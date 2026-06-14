@@ -16,6 +16,11 @@ public class CellCoords
 
     public override int GetHashCode() => HashCode.Combine(row, column);
     public override bool Equals(object obj) => obj is CellCoords c && c.row == row && c.column == column;
+
+    public override string ToString()
+    {
+        return $"Row: {row}, Column: {column}";
+    }
 }
 
 [Serializable]

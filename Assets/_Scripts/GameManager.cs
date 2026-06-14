@@ -2,14 +2,14 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
-using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
 
     public static GameManager Instance;
-    public static event Action OnGameReset;
-    public static event Action OnGameOver;
+    
+    public event Action OnGameReset;
+    public event Action OnGameOver;
 
     private float _hexScale;
     private HashSet<int> _unlockedNumbers;
@@ -18,8 +18,9 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        OnGameOver = null;
+        OnGameReset = null;
         _unlockedNumbers = new HashSet<int> { 1, 2, 3 };
-
     }
 
     private void OnEnable()

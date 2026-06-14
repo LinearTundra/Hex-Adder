@@ -25,8 +25,9 @@ public class Cell : Hex
 
     public void ResetCell()
     {
+        if (State != CellState.Closed)
+            State = CellState.Open;
         Value = 0;
-        State = CellState.Open;
         SetHexColor(_openCellColor);
         UpdateTextBoxValue();
     }

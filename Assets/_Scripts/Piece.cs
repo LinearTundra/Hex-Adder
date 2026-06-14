@@ -80,16 +80,16 @@ public class Piece : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.OnGameReset -= ResetGame;
-        GameManager.OnGameOver -= GameOver;
-        GameManager.OnGameReset += ResetGame;
-        GameManager.OnGameOver += GameOver;
+        GameManager.Instance.OnGameReset -= ResetGame;
+        GameManager.Instance.OnGameOver -= GameOver;
+        GameManager.Instance.OnGameReset += ResetGame;
+        GameManager.Instance.OnGameOver += GameOver;
     }
 
     private void OnApplicationQuit()
     {
-        GameManager.OnGameReset -= ResetGame;
-        GameManager.OnGameOver -= GameOver;
+        GameManager.Instance.OnGameReset -= ResetGame;
+        GameManager.Instance.OnGameOver -= GameOver;
     }
 
     public void Initialise()
@@ -190,6 +190,7 @@ public class Piece : MonoBehaviour
 
     private void PlacePiece()
     {
+        Debug.Log("Place Piece");
         _usedPieces++;
         ClearHighlight();
         tileA.Place();
