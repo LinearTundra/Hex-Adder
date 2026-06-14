@@ -1,13 +1,12 @@
-using TMPro;
 using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
 
     [Header("Grid Configuration")]
-    [SerializeField]
+    [SerializeField, Range(2, 100)]
     private int rows;
-    [SerializeField]
+    [SerializeField, Range(2, 100)]
     private int columns;
 
     [SerializeField]
@@ -25,16 +24,9 @@ public class Grid : MonoBehaviour
     [Header("Game Objects")]
     [SerializeField]
     private Cell cell;
-    [SerializeField]
-    private TMP_Text scoreTextBox;
-    [SerializeField]
-    private TMP_Text highScoreTextBox;
-    [SerializeField]
-    private GameObject gameOverCanvas;
 
     public static Grid Instance;
 
-    private int _highScore;
     private Cell[][] _grid;
     private float _effectiveRows;
     private float _effectiveColumns;
@@ -50,16 +42,13 @@ public class Grid : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.Instance.OnGameReset -= GameReset;
-        GameManager.Instance.OnGameOver -= GameOver;
-        GameManager.Instance.OnGameReset += GameReset;
-        GameManager.Instance.OnGameOver += GameOver;
+        GameManager.OnGameReset -= GameReset;
+        GameManager.OnGameReset += GameReset;
     }
 
     private void OnDisable()
     {
-        GameManager.Instance.OnGameReset -= GameReset;
-        GameManager.Instance.OnGameOver -= GameOver;
+        GameManager.OnGameReset -= GameReset;
     }
 
     private void OnDrawGizmosSelected()
@@ -135,12 +124,12 @@ public class Grid : MonoBehaviour
 
                 if (_grid[i][j].State == CellState.Closed) continue;
 
-                if (i < minRow) minRow = i;
-                if (i > maxRow) maxRow = i;
+                minRow = Mathf.Min(i, minRow);
+                maxRow = Mathf.Max(i, maxRow);
 
                 float offsetDir = rightOffset ? 0.25f : -0.25f;
-                if (j < minCol) minCol = j + offsetDir;
-                if (j > maxCol) maxCol = j + offsetDir;
+                minCol = Mathf.Min(minCol, j + offsetDir);
+                maxCol = Mathf.Max(maxCol, j + offsetDir);
             }
         }
 
@@ -187,7 +176,7 @@ public class Grid : MonoBehaviour
         // current size = current size of the grid, i.e. the space the cells are taking
     }
 
-    private int GetGridSum()
+    public int GetGridSum()
     {
         int sum = 0;
         foreach (Cell[] row in _grid)
@@ -196,22 +185,9 @@ public class Grid : MonoBehaviour
         return sum;
     }
 
-    private void GameOver()
-    {
-        int score = GetGridSum();
-        _highScore = Mathf.Max(score, _highScore);
-
-        scoreTextBox.text = $"Score: {score}";
-        highScoreTextBox.text = $"High Score: {_highScore}";
-
-        gameOverCanvas.SetActive(true);
-    }
-
     private void GameReset()
     {
         resetGrid();
-
-        gameOverCanvas.SetActive(false);
     }
 
     public bool Placable(int a, int b)
@@ -221,15 +197,6 @@ public class Grid : MonoBehaviour
         {
             if (A.State == CellState.Closed || B.State == CellState.Closed) return false;
 
-            if (
-                (A.Value == a && B.Value == b)
-                || (A.Value == b && B.Value == a)
-                || (A.Value == a && B.State == CellState.Open)
-                || (A.Value == b && B.State == CellState.Open)
-                || (A.State == CellState.Open && B.Value == a)
-                || (A.State == CellState.Open && B.Value == b)
-                || (A.State == CellState.Open && B.State == CellState.Open)
-            ) Debug.Log($"A: {A.Coords.ToString()}\nB: {B.Coords.ToString()}\na,b: {a},{b}");
             return (A.Value == a && B.Value == b)
                 || (A.Value == b && B.Value == a)
                 || (A.Value == a && B.State == CellState.Open)
@@ -244,24 +211,13 @@ public class Grid : MonoBehaviour
             for (int j=0; j<columns; j++)
             {
                 if (i>0)
-                {
                     if (validPlacement(_grid[i][j], _grid[i-1][j], a, b)) return true;
-                }
-                
                 if (i<rows-1)
-                {
                     if (validPlacement(_grid[i][j], _grid[i+1][j], a, b)) return true;
-                }
-                
                 if (j>0)
-                {
                     if (validPlacement(_grid[i][j], _grid[i][j-1], a, b)) return true;
-                }
-                
                 if (j<columns-1)
-                {
                     if (validPlacement(_grid[i][j], _grid[i][j+1], a, b)) return true;
-                }
 
                 if (_grid[i][j].RightOffset && j<columns-1)
                 {

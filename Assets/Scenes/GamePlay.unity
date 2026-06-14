@@ -953,6 +953,7 @@ GameObject:
   m_Component:
   - component: {fileID: 733094632}
   - component: {fileID: 733094631}
+  - component: {fileID: 733094633}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -987,6 +988,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &733094633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 733094630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c58ab92c3397bd4f9b1c429bcf94847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverUI
+  scoreTextBox: {fileID: 893852290}
+  highScoreTextBox: {fileID: 827086150}
+  gameOverCanvas: {fileID: 1763331460}
 --- !u!1001 &813354133
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1360,21 +1376,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a40c94c1421f7e84686728502f01e3e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grid
-  rows: 3
-  columns: 3
+  rows: 2
+  columns: 2
   gridWidth: 5
   gridHeight: 6
   firstColumnRight: 0
   unavailable:
     cells:
-    - row: 0
-      column: 0
-    - row: 2
-      column: 0
+    - row: 1
+      column: 3
+    - row: 3
+      column: 3
   cell: {fileID: 3081744461738203657, guid: 9237264dcdef029428930ec00d861be6, type: 3}
-  scoreTextBox: {fileID: 893852290}
-  highScoreTextBox: {fileID: 827086150}
-  gameOverCanvas: {fileID: 1763331460}
 --- !u!1 &1181769539
 GameObject:
   m_ObjectHideFlags: 0
@@ -1757,7 +1770,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -317}
+  m_AnchoredPosition: {x: 0, y: -317}
   m_SizeDelta: {x: 1000, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2116903412

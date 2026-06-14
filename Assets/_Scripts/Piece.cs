@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Empty GameObject parent of two Tiles.
-/// Handles all mouse input via new Input System raycasting against Tile colliders.
+/// Empty GameObject parent of two Tiles.<br></br>
+/// Handles all mouse input via new Input System raycasting against Tile colliders.<br></br>
 /// Handles drag, rotation (6 orientations), placement validation,
 /// and snap-back on invalid drop.
 /// </summary>
@@ -80,16 +80,16 @@ public class Piece : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.Instance.OnGameReset -= ResetGame;
-        GameManager.Instance.OnGameOver -= GameOver;
-        GameManager.Instance.OnGameReset += ResetGame;
-        GameManager.Instance.OnGameOver += GameOver;
+        GameManager.OnGameReset -= ResetGame;
+        GameManager.OnGameOver -= GameOver;
+        GameManager.OnGameReset += ResetGame;
+        GameManager.OnGameOver += GameOver;
     }
 
     private void OnApplicationQuit()
     {
-        GameManager.Instance.OnGameReset -= ResetGame;
-        GameManager.Instance.OnGameOver -= GameOver;
+        GameManager.OnGameReset -= ResetGame;
+        GameManager.OnGameOver -= GameOver;
     }
 
     public void Initialise()
@@ -112,6 +112,10 @@ public class Piece : MonoBehaviour
 
     // ── Input ───────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Handles a left mouse button press. Raycasts to check if either tile was clicked.<br></br>
+    /// If hit, begins drag and records press position for click-vs-drag detection.<br></br>
+    /// </summary>
     private void OnPress(Vector2 mouseWorld)
     {
         // Only respond if click hit one of our tiles
@@ -128,6 +132,12 @@ public class Piece : MonoBehaviour
         _clickedThisPress = true;
     }
 
+    /// <summary>
+    /// Called every frame while the left mouse button is held and dragging is active.<br></br>
+    /// Moves the piece via Rigidbody2D.MovePosition so physics-based trigger detection works.<br></br>
+    /// Cancels click intent if the mouse has moved past DragThreshold from the press position.<br></br>
+    /// Keeps the rotate icon anchored at the spawn point while dragging.
+    /// </summary>
     private void OnDrag(Vector2 mouseWorld)
     {
         // If moved past threshold, it's a drag not a click
@@ -140,6 +150,12 @@ public class Piece : MonoBehaviour
         UpdateHighlight();
     }
 
+    /// <summary>
+    /// Called when the left mouse button is released.<br></br>
+    /// If the press was a short click (no drag), rotates the piece and returns it to spawn.<br></br>
+    /// If both tiles are over valid, distinct cells, places the piece.<br></br>
+    /// Otherwise returns the piece to its spawn position.
+    /// </summary>
     private void OnRelease(Vector2 mouseWorld)
     {
         if (!_isDragging) return;
@@ -190,7 +206,6 @@ public class Piece : MonoBehaviour
 
     private void PlacePiece()
     {
-        Debug.Log("Place Piece");
         _usedPieces++;
         ClearHighlight();
         tileA.Place();

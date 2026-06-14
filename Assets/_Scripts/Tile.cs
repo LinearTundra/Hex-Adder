@@ -48,7 +48,7 @@ public class Tile : Hex
         Value = value;
         valueTextBox.enabled = true;
         _sprite.enabled = true;
-        SetHexColor(Color.HSVToRGB((float)Value / 36, .6f, 1));
+        SetHexColor(Color.HSVToRGB((float)Value / 36 % 1, .6f, 1));
         UpdateTextBoxValue();
     }
 

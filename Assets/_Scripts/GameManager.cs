@@ -8,8 +8,8 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance;
     
-    public event Action OnGameReset;
-    public event Action OnGameOver;
+    public static event Action OnGameReset;
+    public static event Action OnGameOver;
 
     private float _hexScale;
     private HashSet<int> _unlockedNumbers;
@@ -18,8 +18,6 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        OnGameOver = null;
-        OnGameReset = null;
         _unlockedNumbers = new HashSet<int> { 1, 2, 3 };
     }
 
@@ -32,6 +30,14 @@ public class GameManager : MonoBehaviour
     private void OnDisable()
     {
         OnGameReset -= ResetUnlockedNumbers;
+        OnGameOver = null;
+        OnGameReset = null;
+    }
+
+    private void OnApplicationQuit()
+    {
+        OnGameOver = null;
+        OnGameReset = null;
     }
 
     public void SetHexScale(float hexScale)
@@ -54,7 +60,7 @@ public class GameManager : MonoBehaviour
         _unlockedNumbers = new HashSet<int> { 1, 2, 3 };
     }
 
-    public int GetRandomUnlockedNumber()
+    private int GetRandomUnlockedNumber()
     {
         List<int> list = new List<int>(_unlockedNumbers);
         return list[Random.Range(0, list.Count)];
@@ -74,7 +80,11 @@ public class GameManager : MonoBehaviour
                 if (Grid.Instance.Placable(numbers[i], numbers[j]))
                     validPairs.Add((numbers[i], numbers[j]));
 
-        if (validPairs.Count == 0) return (-1, -1);
+        // Incase of a quick reset, the grid may not be reset but validation may be asked
+        // then if there are no cases of pairs of CellState.Open or with values 1, 2, 3
+        // no valid pairs are recorded, so random numbers are sent
+        if (validPairs.Count == 0) 
+            return (GetRandomUnlockedNumber(), GetRandomUnlockedNumber());
 
         return validPairs[Random.Range(0, validPairs.Count)];
     }
