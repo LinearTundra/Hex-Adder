@@ -39,6 +39,7 @@ public class Piece : MonoBehaviour
     private int _usedPieces;
     private int _orientationIndex = 0;
     private bool _isDragging = false;
+    private bool _validPlacement = false;
     private bool _clickedThisPress = false; // true if press didn't move far enough to count as drag
     private Vector3 _spawnPosition;
     private Vector3 _dragOffset;
@@ -194,8 +195,16 @@ public class Piece : MonoBehaviour
     private void UpdateHighlight()
     {
         bool bothValid = tileA.IsPlaceable && tileB.IsPlaceable && tileA.HoveredCell != tileB.HoveredCell;
-        tileA.HighlightHoveredCell(bothValid);
-        tileB.HighlightHoveredCell(bothValid);
+        if (!bothValid) return;
+
+        Vector2 tileDir = (tileB.transform.position - tileA.transform.position).normalized;
+        Vector2 cellDir = (tileB.HoveredCell.transform.position - tileA.HoveredCell.transform.position).normalized;
+        bool alignmentValid = Vector2.Dot(tileDir, cellDir) > 0.9f;
+        
+        _validPlacement = bothValid && alignmentValid;
+
+        tileA.HighlightHoveredCell(_validPlacement);
+        tileB.HighlightHoveredCell(_validPlacement);
     }
 
     private void ClearHighlight()
@@ -206,6 +215,12 @@ public class Piece : MonoBehaviour
 
     private void PlacePiece()
     {
+        if (!_validPlacement)
+        {
+            ReturnToSpawn();
+            return;
+        }
+
         _usedPieces++;
         ClearHighlight();
         tileA.Place();

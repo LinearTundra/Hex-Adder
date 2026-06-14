@@ -1382,11 +1382,7 @@ MonoBehaviour:
   gridHeight: 6
   firstColumnRight: 0
   unavailable:
-    cells:
-    - row: 1
-      column: 3
-    - row: 3
-      column: 3
+    cells: []
   cell: {fileID: 3081744461738203657, guid: 9237264dcdef029428930ec00d861be6, type: 3}
 --- !u!1 &1181769539
 GameObject:
