@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,21 +10,33 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class Piece : MonoBehaviour
 {
-    [Header("Tiles")]
-    [SerializeField] private Tile tileA;
-    [SerializeField] private Tile tileB;
+    [Header("GameObject")]
+    [SerializeField] 
+    private Tile tileA;
+    [SerializeField] 
+    private Tile tileB;
+    [SerializeField]
+    private Transform rotateIcon;
+    [SerializeField]
+    private TMP_Text remainingPiecesTextBox;
 
-    // The 6 hex orientations as offsets of tileB relative to tileA (tileA stays at local origin).
+    [Header("Parameters")]
+    [SerializeField]
+    private int availablePieces;
+
+    // The 6 hex orientations as offsets of tileB relative to tileA
+    // tileA and tileB are shifted half of each vector in opposite sides to maintain center of mass.
     private static readonly Vector3[] Orientations = new Vector3[]
     {
         new Vector3( 2.24f,  0f,     0f), // 0: right
-        new Vector3( 1.12f,  1.82f,  0f), // 1: upper-right
-        new Vector3(-1.12f,  1.82f,  0f), // 2: upper-left
+        new Vector3( 1.12f, -1.82f,  0f), // 1: lower-right
+        new Vector3(-1.12f, -1.82f,  0f), // 2: lower-left
         new Vector3(-2.24f,  0f,     0f), // 3: left
-        new Vector3(-1.12f, -1.82f,  0f), // 4: lower-left
-        new Vector3( 1.12f, -1.82f,  0f), // 5: lower-right
+        new Vector3(-1.12f,  1.82f,  0f), // 4: upper-left
+        new Vector3( 1.12f,  1.82f,  0f), // 5: upper-right
     };
 
+    private int _usedPieces;
     private int _orientationIndex = 0;
     private bool _isDragging = false;
     private bool _clickedThisPress = false; // true if press didn't move far enough to count as drag
@@ -44,7 +57,7 @@ public class Piece : MonoBehaviour
 
     private void Start()
     {
-        transform.localScale *= GameManager.GetHexScale();
+        transform.localScale *= GameManager.Instance.GetHexScale();
         Initialise();
     }
 
@@ -65,13 +78,36 @@ public class Piece : MonoBehaviour
             OnRelease(mouseWorld);
     }
 
+    private void OnEnable()
+    {
+        GameManager.OnGameReset -= ResetGame;
+        GameManager.OnGameOver -= GameOver;
+        GameManager.OnGameReset += ResetGame;
+        GameManager.OnGameOver += GameOver;
+    }
+
+    private void OnApplicationQuit()
+    {
+        GameManager.OnGameReset -= ResetGame;
+        GameManager.OnGameOver -= GameOver;
+    }
+
     public void Initialise()
+    {
+        _usedPieces = 0;
+        remainingPiecesTextBox.text = $"x{availablePieces}";
+        GeneratePiece();
+    }
+
+    private void GeneratePiece()
     {
         transform.position = _spawnPosition;
         _orientationIndex = Random.Range(0, Orientations.Length);
-        tileA.SetValue(GameManager.GetRandomUnlockedNumber());
-        tileB.SetValue(GameManager.GetRandomUnlockedNumber());
+        (int a, int b) = GameManager.Instance.GetValidPiece();
+        tileA.SetValue(a);
+        tileB.SetValue(b);
         ApplyOrientation();
+
     }
 
     // ── Input ───────────────────────────────────────────────────────────────
@@ -98,6 +134,7 @@ public class Piece : MonoBehaviour
         if (_clickedThisPress && Vector2.Distance(mouseWorld, _pressPosition) > DragThreshold)
             _clickedThisPress = false;
 
+        rotateIcon.position = _spawnPosition + Vector3.forward;
         _rb.MovePosition(mouseWorld + (Vector2)_dragOffset);
         //transform.position = (Vector3)mouseWorld + _dragOffset;
         UpdateHighlight();
@@ -120,6 +157,7 @@ public class Piece : MonoBehaviour
             ReturnToSpawn();
 
         _clickedThisPress = false;
+        rotateIcon.position = _spawnPosition + Vector3.forward;
     }
 
     // ── Internal ────────────────────────────────────────────────────────────
@@ -133,8 +171,8 @@ public class Piece : MonoBehaviour
 
     private void ApplyOrientation()
     {
-        tileA.transform.localPosition = Orientations[_orientationIndex]/2;
-        tileB.transform.localPosition = -Orientations[_orientationIndex]/2;
+        tileA.transform.localPosition = -Orientations[_orientationIndex]/2;
+        tileB.transform.localPosition = Orientations[_orientationIndex]/2;
     }
 
     private void UpdateHighlight()
@@ -152,10 +190,15 @@ public class Piece : MonoBehaviour
 
     private void PlacePiece()
     {
+        _usedPieces++;
         ClearHighlight();
         tileA.Place();
         tileB.Place();
-        Initialise();
+
+        remainingPiecesTextBox.text = $"x{availablePieces - _usedPieces}";
+
+        if (_usedPieces == availablePieces) GameManager.Instance.GameOver();
+        else GeneratePiece();
     }
 
     private void ReturnToSpawn()
@@ -169,4 +212,17 @@ public class Piece : MonoBehaviour
         Vector2 screenPos = Mouse.current.position.ReadValue();
         return _cam.ScreenToWorldPoint(screenPos);
     }
+
+    private void ResetGame()
+    {
+        gameObject.SetActive(true);
+        Initialise();
+    }
+
+    private void GameOver()
+    {
+        gameObject.SetActive(false);
+        remainingPiecesTextBox.text = "";
+    }
+
 }

@@ -13,11 +13,6 @@ public class Tile : Hex
 
     private List<Cell> _overlappingCells = new List<Cell>();
 
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-
     private void Update()
     {
         if (_overlappingCells.Count == 0)
@@ -51,9 +46,9 @@ public class Tile : Hex
     public void SetValue(int value)
     {
         Value = value;
-        _sprite.enabled = true;
         valueTextBox.enabled = true;
-        _sprite.color = Color.HSVToRGB((float)Value / 36, .6f, 1);
+        _sprite.enabled = true;
+        SetHexColor(Color.HSVToRGB((float)Value / 36, .6f, 1));
         UpdateTextBoxValue();
     }
 
@@ -68,6 +63,10 @@ public class Tile : Hex
         if (HoveredCell == null) return;
         HoveredCell.Fill(Value);
         HoveredCell = null;
+        
+        Value = 0;
+        _sprite.enabled = false;
+        valueTextBox.enabled = false;
     }
 
     // ── Trigger detection ───────────────────────────────────────────────────

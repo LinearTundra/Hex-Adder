@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class Grid : MonoBehaviour
@@ -24,7 +25,16 @@ public class Grid : MonoBehaviour
     [Header("Game Objects")]
     [SerializeField]
     private Cell cell;
+    [SerializeField]
+    private TMP_Text scoreTextBox;
+    [SerializeField]
+    private TMP_Text highScoreTextBox;
+    [SerializeField]
+    private GameObject gameOverCanvas;
 
+    public static Grid Instance;
+
+    private int _highScore;
     private Cell[][] _grid;
     private float _effectiveRows;
     private float _effectiveColumns;
@@ -34,6 +44,22 @@ public class Grid : MonoBehaviour
         GenerateGrid();
         PositionGrid();
         ScaleGrid();
+
+        Instance = this;
+    }
+
+    private void OnEnable()
+    {
+        GameManager.OnGameReset -= GameReset;
+        GameManager.OnGameOver -= GameOver;
+        GameManager.OnGameReset += GameReset;
+        GameManager.OnGameOver += GameOver;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnGameReset -= GameReset;
+        GameManager.OnGameOver -= GameOver;
     }
 
     private void OnDrawGizmosSelected()
@@ -147,12 +173,12 @@ public class Grid : MonoBehaviour
         if (width > height)
         {
             transform.localScale = transform.localScale * gridWidth / width;
-            GameManager.SetHexScale(gridWidth / width);
+            GameManager.Instance.SetHexScale(gridWidth / width);
         }
         else
         {
             transform.localScale = transform.localScale * gridHeight / height;
-            GameManager.SetHexScale(gridHeight / height);
+            GameManager.Instance.SetHexScale(gridHeight / height);
         }
         // scale * (max size / current size)
         //
@@ -160,5 +186,112 @@ public class Grid : MonoBehaviour
         // max size = the max size the grid can be, i.e. the space the cells should take
         // current size = current size of the grid, i.e. the space the cells are taking
     }
+
+    private int GetGridSum()
+    {
+        int sum = 0;
+        foreach (Cell[] row in _grid)
+            foreach (Cell cell in row)
+                sum += cell.Value;
+        return sum;
+    }
+
+    private void GameOver()
+    {
+        int score = GetGridSum();
+        _highScore = Mathf.Max(score, _highScore);
+
+        scoreTextBox.text = $"Score: {score}";
+        highScoreTextBox.text = $"High Score: {_highScore}";
+
+        gameOverCanvas.SetActive(true);
+    }
+
+    private void GameReset()
+    {
+        resetGrid();
+
+        gameOverCanvas.SetActive(false);
+    }
+
+    public bool Placable(int a, int b)
+    {
+
+        bool validPlacement(Cell A, Cell B, int a, int b)
+        {
+            if (A.State == CellState.Closed || B.State == CellState.Closed) return false;
+
+            if (
+                (A.Value == a && B.Value == b)
+                || (A.Value == b && B.Value == a)
+                || (A.Value == a && B.State == CellState.Open)
+                || (A.Value == b && B.State == CellState.Open)
+                || (A.State == CellState.Open && B.Value == a)
+                || (A.State == CellState.Open && B.Value == b)
+                || (A.State == CellState.Open && B.State == CellState.Open)
+            ) Debug.Log($"A: {A.ToString()}\nB: {B.ToString()}\na,b: {a},{b}");
+            return (A.Value == a && B.Value == b)
+                || (A.Value == b && B.Value == a)
+                || (A.Value == a && B.State == CellState.Open)
+                || (A.Value == b && B.State == CellState.Open)
+                || (A.State == CellState.Open && B.Value == a)
+                || (A.State == CellState.Open && B.Value == b)
+                || (A.State == CellState.Open && B.State == CellState.Open);
+        }
+
+        for (int i=0; i<rows; i++)
+        {
+            for (int j=0; j<columns; j++)
+            {
+                if (i>0)
+                {
+                    if (validPlacement(_grid[i][j], _grid[i-1][j], a, b)) return true;
+                }
+                
+                if (i<rows-1)
+                {
+                    if (validPlacement(_grid[i][j], _grid[i+1][j], a, b)) return true;
+                }
+                
+                if (j>0)
+                {
+                    if (validPlacement(_grid[i][j], _grid[i][j-1], a, b)) return true;
+                }
+                
+                if (j<columns-1)
+                {
+                    if (validPlacement(_grid[i][j], _grid[i][j+1], a, b)) return true;
+                }
+
+                if (_grid[i][j].RightOffset && j<columns-1)
+                {
+                    if (i>0)
+                        if (validPlacement(_grid[i][j], _grid[i-1][j+1], a, b)) return true;
+                    if (i<rows-1)
+                        if (validPlacement(_grid[i][j], _grid[i+1][j+1], a, b)) return true;
+                }
+                if (!_grid[i][j].RightOffset && j>0)
+                {
+                    if (i>0)
+                        if (validPlacement(_grid[i][j], _grid[i-1][j-1], a, b)) return true;
+                    if (i<rows-1)
+                        if (validPlacement(_grid[i][j], _grid[i+1][j-1], a, b)) return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+
+    /*
+     * 
+     * 1 2 3 4 5 6
+     *  1 2 3 4 5 6
+     * 1 2 3 4 5 6 
+     *  1 2 3 4 5 6
+     * 
+     */
 
 }

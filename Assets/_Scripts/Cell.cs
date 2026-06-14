@@ -57,7 +57,7 @@ public class Cell : Hex
     public void Fill(int Value)
     {
         this.Value += Value;
-        GameManager.UnlockNumber(this.Value);
+        GameManager.Instance.UnlockNumber(this.Value);
         State = CellState.Filled;
         SetHexColor(_valueCellColor);
         UpdateTextBoxValue();
